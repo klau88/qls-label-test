@@ -16,8 +16,13 @@ class Api
         $this->password = $password;
     }
 
+    private function fetch()
+    {
+        return Http::withBasicAuth($this->username, $this->password);
+    }
+
     public function authenticate()
     {
-        return Http::withBasicAuth($this->username, $this->password)->get(config('api.url'));
+        return $this->fetch()->get(config('api.url'));
     }
 }
