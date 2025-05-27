@@ -1,12 +1,16 @@
 <?php
 
-it('can authenticate to the QLS API', function () {
-    $credentials = [
-        'username' => config('api.username'),
-        'password' => config('api.password'),
-    ];
+use App\Classes\Api;
 
-    $response = $this->get('/authenticate', $credentials);
+it('can authenticate to the QLS API', function () {
+    $response = $this->get('/authenticate');
+
+    $response->assertStatus(200);
+});
+
+it('can get products from the QLS API', function () {
+    $companyId = config('api.company_id');
+    $response = $this->get('/products');
 
     $response->assertStatus(200);
 });

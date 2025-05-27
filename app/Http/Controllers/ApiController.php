@@ -8,10 +8,18 @@ use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
-    private $api;
+    private function api()
+    {
+        return app()->make(Api::class);
+    }
+
     public function authenticate()
     {
-        $api = app()->make(Api::class);
-        return $api->authenticate();
+        return $this->api()->authenticate();
+    }
+
+    public function products()
+    {
+        return $this->api()->getProducts();
     }
 }

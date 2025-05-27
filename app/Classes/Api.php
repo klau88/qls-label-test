@@ -25,4 +25,10 @@ class Api
     {
         return $this->fetch()->get(config('api.url'));
     }
+    
+    public function getProducts()
+    {
+        $companyId = config('api.company_id');
+        return $this->fetch()->get(config('api.url') . "companies/{$companyId}/products");
+    }
 }
