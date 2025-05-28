@@ -112,9 +112,14 @@ class Api
         return $shipment;
     }
 
-    public function postLabel($shipment)
+    public function getLabel($shipment)
     {
         $companyId = config('api.company_id');
         return $this->fetch()->post(config('api.url') . "/v2/companies/{$companyId}/shipments", $shipment);
+    }
+
+    public function getLabelPdf(string $url)
+    {
+        return $this->fetch()->get($url);
     }
 }

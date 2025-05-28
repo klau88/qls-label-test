@@ -20,3 +20,9 @@ it('can get a shipment response from a test order', function () {
 
     $response->assertStatus(200);
 });
+
+it('can generate a PDF file from the label response', function () {
+    $response = $this->get('/label/generate');
+
+    $response->assertStatus(200);
+});
