@@ -14,3 +14,9 @@ it('can get products from the QLS API', function () {
 
     $response->assertStatus(200);
 });
+
+it('can get a shipment response from a test order', function () {
+    $response = $this->post('/label/create');
+
+    $response->assertStatus(200);
+});

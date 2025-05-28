@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Api;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
 
 class ApiController extends Controller
 {
@@ -21,5 +20,23 @@ class ApiController extends Controller
     public function products()
     {
         return $this->api()->getProducts();
+    }
+
+    public function label()
+    {
+        $order = app()->make('testOrder');
+
+        return Inertia::render('Label', [
+            'order' => $order,
+            'csrf' => csrf_token()
+        ]);
+    }
+
+    public function postLabel()
+    {
+        $order = app()->make('testOrder');
+        $shipment = $this->api()->mapOrderToShipment($order);
+
+        return $this->api()->postLabel($shipment);
     }
 }
