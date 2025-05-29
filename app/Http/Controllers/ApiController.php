@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Api;
+use App\Models\Shipment;
+use App\Models\ShipmentProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Spatie\PdfToImage\Exceptions\PdfDoesNotExist;
+use Spatie\PdfToImage\Pdf as PdfToImage;
+use function Pest\Laravel\json;
 
 class ApiController extends Controller
 {
@@ -23,12 +29,15 @@ class ApiController extends Controller
         return $this->api()->getProducts();
     }
 
-    public function label()
+    public function shipments()
     {
         $order = app()->make('testOrder');
 
-        return Inertia::render('Label', [
+        $shipments = Shipment::all();
+
+        return Inertia::render('Shipments', [
             'order' => $order,
+            'shipments' => $shipments,
             'csrf' => csrf_token()
         ]);
     }
@@ -45,14 +54,75 @@ class ApiController extends Controller
     {
         $label = $this->getLabel();
 
-        $labelUrl = $label['data']['label_pdf_url'];
+        $data = $label['data'];
 
-        $getLabelPdf = $this->api()->getLabelPdf($labelUrl);
+        $shipment = Shipment::firstOrCreate([
+            'shipment_id' => $data['id'],
+            'company_id' => $data['company_id'],
+            'brand_id' => $data['brand_id'],
+            'product_id' => $data['product_id'],
+            'product_combination_id' => $data['product_combination_id'],
+            'barcode' => $data['barcode'],
+            'tracking_url' => $data['tracking_url'],
+            'status' => $data['status'],
+            'type' => $data['type'],
+            'weight' => $data['weight'],
+            'reference' => $data['reference'],
+            'cod_amount' => $data['cod_amount'],
+            'customs_shipment_type' => $data['customs_shipment_type'],
+            'customs_invoice_number' => $data['customs_invoice_number'],
+            'label_pdf_url' => $data['label_pdf_url'],
+            'label_zpl_url' => $data['label_zpl_url'],
+            'sender_company_name' => $data['sender_contact']['companyname'],
+            'sender_name' => $data['sender_contact']['name'],
+            'sender_street' => $data['sender_contact']['street'],
+            'sender_housenumber' => $data['sender_contact']['housenumber'],
+            'sender_address2' => $data['sender_contact']['address2'],
+            'sender_postalcode' => $data['sender_contact']['postalcode'],
+            'sender_city' => $data['sender_contact']['locality'],
+            'sender_country' => $data['sender_contact']['country'],
+            'sender_phone' => $data['sender_contact']['phone'],
+            'sender_email' => $data['sender_contact']['email'],
+            'receiver_company_name' => $data['receiver_contact']['companyname'],
+            'receiver_name' => $data['receiver_contact']['name'],
+            'receiver_street' => $data['receiver_contact']['street'],
+            'receiver_housenumber' => $data['receiver_contact']['housenumber'],
+            'receiver_address2' => $data['receiver_contact']['address2'],
+            'receiver_postalcode' => $data['receiver_contact']['postalcode'],
+            'receiver_city' => $data['receiver_contact']['locality'],
+            'receiver_country' => $data['receiver_contact']['country'],
+            'receiver_phone' => $data['receiver_contact']['phone'],
+            'receiver_email' => $data['receiver_contact']['email'],
+            'shipment_short' => $data['product']['short'],
+            'shipment_name' => $data['product']['name'],
+            'shipment_type' => $data['product']['type'],
+            'tracking_id' => $data['tracking_id']
+        ]);
+
+        foreach ($data['shipment_products']['data'] as $product) {
+            ShipmentProduct::firstOrCreate([
+                'shipment_id' => $shipment['id'],
+                'shipment_product_id' => $product['id'],
+                'amount' => $product['amount'],
+                'name' => $product['name'],
+                'country_code_of_origin' => $product['country_code_of_origin'],
+                'hs_code' => $product['hs_code'],
+                'ean' => $product['ean'],
+                'sku' => $product['sku'],
+                'price_per_unit' => $product['price_per_unit'],
+                'weight_per_unit' => $product['weight_per_unit'],
+                'currency' => $product['currency'],
+            ]);
+        }
+
+        $getLabelPdf = $this->api()->getLabelPdf($shipment['label_pdf_url']);
 
         $pdf = base64_decode($getLabelPdf['data']);
 
-        return response()->make($pdf, 200, [
+        $file = response()->make($pdf, 200, [
             'Content-Type' => 'application/pdf'
         ]);
+
+        return Storage::disk('public')->put("label_{$shipment['id']}.pdf", $file);
     }
 }
