@@ -56,7 +56,7 @@ const makeLabel = async (shipment) => {
             </thead>
             <tbody>
                 <tr class="striped" v-for="shipment in shipments">
-                    <td class="px-2">{{ shipment.shipment_id }}</td>
+                    <td class="px-2">{{ shipment.reference }}</td>
                     <td class="px-2">{{ shipment.shipment_name }}</td>
                     <td class="px-2">{{ shipment.receiver_name }}</td>
                     <td class="px-2">{{ shipment.receiver_company_name }}</td>
