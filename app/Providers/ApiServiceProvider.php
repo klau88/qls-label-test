@@ -20,7 +20,7 @@ class ApiServiceProvider extends ServiceProvider
             return [
                 'number' => '#958201',
                 'billing_address' => [
-                    'companyname' => null,
+                    'companyname' => 'QLS',
                     'name' => 'John Doe',
                     'street' => 'Daltonstraat',
                     'housenumber' => '65',
@@ -32,7 +32,7 @@ class ApiServiceProvider extends ServiceProvider
                     'phone' => '0101234567',
                 ],
                 'delivery_address' => [
-                    'companyname' => '',
+                    'companyname' => 'QLS',
                     'name' => 'John Doe',
                     'street' => 'Daltonstraat',
                     'housenumber' => '65',
@@ -40,6 +40,8 @@ class ApiServiceProvider extends ServiceProvider
                     'zipcode' => '3316GD',
                     'city' => 'Dordrecht',
                     'country' => 'NL',
+                    'email' => 'email@example.com',
+                    'phone' => '0101234567',
                 ],
                 'order_lines' => [
                     [

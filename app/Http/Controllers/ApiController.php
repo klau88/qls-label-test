@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Classes\Api;
 use App\Models\Shipment;
 use App\Models\ShipmentProduct;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Spatie\PdfToImage\Exceptions\PdfDoesNotExist;
+use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\PdfToImage\Pdf as PdfToImage;
-use function Pest\Laravel\json;
 
 class ApiController extends Controller
 {
@@ -124,5 +122,25 @@ class ApiController extends Controller
         ]);
 
         return Storage::disk('public')->put("label_{$shipment['id']}.pdf", $file);
+    }
+
+    public function retrieveLabel(int $id)
+    {
+        return Storage::disk('public')->get("label_{$id}.pdf");
+    }
+
+    public function generated()
+    {
+        $id = request()->input('shipment');
+
+        $pdf = new PdfToImage(public_path("storage/label_{$id}.pdf"));
+        $pdf->save(public_path("storage/label_{$id}.jpg"));
+
+        $shipment = Shipment::find($id);
+        $labelImage = asset("storage/label_{$id}.jpg");
+
+        return Pdf::view('pdfTemplate', compact('shipment', 'labelImage'))
+            ->format('a4')
+            ->save(public_path("storage/packing_slip_{$id}.pdf"));
     }
 }

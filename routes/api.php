@@ -9,5 +9,4 @@ Route::get('shipments', [ApiController::class, 'shipments'])->name('api.shipment
 Route::post('label/create', [ApiController::class, 'getLabel'])->name('api.createLabel');
 Route::get('label/generate', [ApiController::class, 'generateLabelPdf'])->name('api.generateLabel');
 Route::get('label/retrieve/{id}', [ApiController::class, 'retrieveLabel'])->name('api.retrieveLabel');
-Route::get('generatePackingSlip/{shipment}', [ApiController::class, 'generatePackingSlip'])->name('api.generatePackingSlip');
-Route::get('generateImage/{id}', [ApiController::class, 'pdfToImage'])->name('api.generateImage');
+Route::post('generated', [ApiController::class, 'generated'])->name('api.generated');
