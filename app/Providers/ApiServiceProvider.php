@@ -18,7 +18,7 @@ class ApiServiceProvider extends ServiceProvider
 
         $this->app->bind('testOrder', function () {
             return [
-                'number' => '#958201',
+                'number' => '#' . fake()->numberBetween(1000, 999999),
                 'billing_address' => [
                     'companyname' => 'QLS',
                     'name' => 'John Doe',

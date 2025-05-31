@@ -41,7 +41,6 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
     @vite(['resources/js/app.ts'])
-    <link rel="stylesheet" href="{{ public_path('pdf.css') }}">
 </head>
 <body class="font-sans antialiased">
 <div id="app">

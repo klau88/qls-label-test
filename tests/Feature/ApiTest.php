@@ -1,5 +1,6 @@
 <?php
 
+use App\Classes\Api;
 use App\Models\Shipment;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
@@ -17,13 +18,15 @@ it('can get products from the QLS API', function () {
 });
 
 it('can get a shipment response from a test order', function () {
-    $response = $this->post(route('api.createLabel'), []);
+    $shipment = Shipment::factory()->create();
+    $response = $this->post(route('api.createLabel', [$shipment]));
 
     $response->assertStatus(200);
 });
 
 it('can generate a PDF file from the label response', function () {
-    $response = $this->get(route('api.generateLabel'));
+    $order = app()->make('testOrder');
+    $response = $this->post(route('shipments.store'), compact('order'));
 
     $response->assertStatus(200);
 });

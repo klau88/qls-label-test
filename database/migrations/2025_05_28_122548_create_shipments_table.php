@@ -13,22 +13,22 @@ return new class extends Migration
     {
         Schema::create('shipments', function (Blueprint $table) {
             $table->id();
-            $table->string('shipment_id');
+            $table->string('shipment_id')->nullable();
             $table->string('company_id');
             $table->string('brand_id');
-            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('product_id')->nullable();
             $table->unsignedInteger('product_combination_id');
-            $table->string('barcode');
-            $table->string('tracking_url');
-            $table->string('status');
-            $table->string('type');
+            $table->string('barcode')->nullable();
+            $table->string('tracking_url')->nullable();
+            $table->string('status')->nullable();
+            $table->string('type')->nullable();
             $table->unsignedInteger('weight');
             $table->string('reference');
-            $table->unsignedInteger('cod_amount');
+            $table->unsignedInteger('cod_amount')->nullable();
             $table->string('customs_shipment_type')->nullable();
             $table->string('customs_invoice_number')->nullable();
-            $table->string('label_pdf_url');
-            $table->string('label_zpl_url');
+            $table->string('label_pdf_url')->nullable();
+            $table->string('label_zpl_url')->nullable();
             $table->string('sender_company_name');
             $table->string('sender_name');
             $table->string('sender_street');
@@ -57,10 +57,10 @@ return new class extends Migration
             $table->string('receiver_eori')->nullable();
             $table->string('receiver_oss')->nullable();
             $table->string('receiver_type')->nullable();
-            $table->string('shipment_short');
-            $table->string('shipment_name');
-            $table->string('shipment_type');
-            $table->string('tracking_id');
+            $table->string('shipment_short')->nullable();
+            $table->string('shipment_name')->nullable();
+            $table->string('shipment_type')->nullable();
+            $table->string('tracking_id')->nullable();
             $table->timestamps();
         });
     }
