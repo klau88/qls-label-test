@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('hs_code')->nullable();
             $table->string('ean')->nullable();
             $table->string('sku')->nullable();
-            $table->unsignedInteger('price_per_unit')->nullable();
+            $table->decimal('price_per_unit')->nullable();
             $table->unsignedInteger('weight_per_unit')->nullable();
             $table->string('currency');
             $table->timestamps();

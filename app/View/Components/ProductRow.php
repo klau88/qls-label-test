@@ -10,13 +10,16 @@ class ProductRow extends Component
 {
     public $title;
     public $value;
+    public $price;
+
     /**
      * Create a new component instance.
      */
-    public function __construct($title, $value)
+    public function __construct($title, $value, $price)
     {
         $this->title = $title;
         $this->value = $value;
+        $this->price = $price;
     }
 
     /**

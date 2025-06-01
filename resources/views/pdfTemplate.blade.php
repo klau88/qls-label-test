@@ -66,7 +66,7 @@
                     ></x-address-view>
                 </div>
             </div>
-            <div>
+            <div class="text-sm">
                 <x-address-view
                     title="Klantgegevens"
                     :name="$shipment->receiver_name"
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                 </x-header-row>
-                <div class="flex flex-row">
+                <div class="flex flex-row text-sm">
                     @if($shipment['products'])
                         <div class="w-1/2">
                             @foreach($shipment['products'] as $product)
@@ -101,21 +101,11 @@
                                     </div>
                                     <div class="grow">
                                         <x-product-row
-                                            title="Product"
+                                            title=""
                                             :value="$product->name"
-                                        ></x-product-row>
-                                        @if($product->ean)
-                                            <x-product-row
-                                                title="EAN"
-                                                :value="$product->ean"
-                                            ></x-product-row>
-                                        @endif
-                                        @if($product->sku)
-                                            <x-product-row
-                                                title="SKU"
-                                                :value="$product->sku"
-                                            ></x-product-row>
-                                        @endif
+                                            :price="($product->amount * $product->price_per_unit)"
+                                        >
+                                        </x-product-row>
                                     </div>
                                 </div>
                             @endforeach

@@ -17,11 +17,11 @@ class ShipmentController extends Controller
     {
         $order = app()->make('testOrder');
 
-        $shipments = Shipment::all();
+        $shipments = Shipment::with('products')->paginate(100)->toArray();
 
         return Inertia::render('Shipments/Index', [
             'order' => $order,
-            'shipments' => $shipments,
+            'shipments' => $shipments['data'],
             'csrf' => csrf_token()
         ]);
     }

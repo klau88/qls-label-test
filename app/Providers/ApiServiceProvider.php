@@ -49,12 +49,14 @@ class ApiServiceProvider extends ServiceProvider
                         'name' => 'Jeans - Black - 36',
                         'sku' => '69205',
                         'ean' => '8710552295268',
+                        'price_per_unit' => 29.99
                     ],
                     [
                         'amount_ordered' => 1,
                         'name' => 'Sjaal - Rood Oranje',
                         'sku' => '25920',
                         'ean' => '3059943009097',
+                        'price_per_unit' => 10.99
                     ]
                 ]
             ];

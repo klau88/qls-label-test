@@ -105,7 +105,7 @@ class Api
 //            'hs_code' => '123456',
                 'ean' => $orderLine['ean'] ?? null,
                 'sku' => (string)($orderLine['sku'] ?? null),
-//            'price_per_unit' => 10.99,
+                'price_per_unit' => $orderLine['price_per_unit'] ?? null,
 //            'weight_per_unit' => 500,
                 'currency' => 'EUR'
             ]);
