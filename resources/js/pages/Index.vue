@@ -12,8 +12,6 @@ const synchronize = async () => {
     await axios.post('/shipments/store', {
         order: props.order
     }).then(response => {
-        console.log('response');
-        console.log(response);
         window.location.href = '/shipments';
     });
 }
