@@ -5,7 +5,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    // return Inertia::render('Welcome');
+
+    $order = app()->make('testOrder');
+
+    return Inertia::render('Index', compact('order'));
 })->name('home');
 
 Route::get('dashboard', function () {
