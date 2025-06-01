@@ -6,9 +6,6 @@ const props = defineProps({
 });
 
 const synchronize = async () => {
-    console.log('clicked');
-    console.log(props.order);
-
     await axios.post('/shipments/store', {
         order: props.order
     }).then(response => {

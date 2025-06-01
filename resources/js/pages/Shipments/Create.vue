@@ -28,8 +28,6 @@ const submit = async () => {
             order: props.order,
         })
         .then((response) => {
-            console.log('response');
-            console.log(response);
             window.location.href = '/shipments';
         });
 };
