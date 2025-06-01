@@ -80,46 +80,52 @@
                     :phone="$shipment->receiver_phone"
                 ></x-address-view>
             </div>
-            @if($shipment['products'])
-                <div>
-                    <x-header-row>
-                        <h2 class="text-md font-bold text-white">Producten</h2>
-                    </x-header-row>
-                    @foreach($shipment['products'] as $product)
-                        <div class="w-fit">
-                            <div class="flex w-full flex-row items-center py-4">
-                                <div class="px-2">
-                                    {{ $product->amount }} x
-                                </div>
-                                <div class="grow">
-                                    <x-product-row
-                                        title="Product"
-                                        :value="$product->name"
-                                    ></x-product-row>
-                                    @if($product->ean)
-                                        <x-product-row
-                                            title="EAN"
-                                            :value="$product->ean"
-                                        ></x-product-row>
-                                    @endif
-                                    @if($product->sku)
-                                        <x-product-row
-                                            title="SKU"
-                                            :value="$product->sku"
-                                        ></x-product-row>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
             <div>
                 <x-header-row>
-                    <h2 class="text-md font-bold text-white">Hierbij uw verzendlabel</h2>
+                    <div class="flex flex-row">
+                        <div class="w-1/2">
+                            <h2 class="text-md font-bold text-white">Producten</h2>
+                        </div>
+                        <div class="w-1/2">
+                            <h2 class="text-md font-bold text-white">Hierbij uw verzendlabel</h2>
+                        </div>
+                    </div>
                 </x-header-row>
-                <div class="w-fit border-4 border-dotted">
-                    <img style="" width="300px" class="m-2" src="{{ $labelImage }}" />
+                <div class="flex flex-row">
+                    @if($shipment['products'])
+                        <div class="w-1/2">
+                            @foreach($shipment['products'] as $product)
+                                <div class="flex w-full flex-row items-center py-4">
+                                    <div class="px-2">
+                                        {{ $product->amount }} x
+                                    </div>
+                                    <div class="grow">
+                                        <x-product-row
+                                            title="Product"
+                                            :value="$product->name"
+                                        ></x-product-row>
+                                        @if($product->ean)
+                                            <x-product-row
+                                                title="EAN"
+                                                :value="$product->ean"
+                                            ></x-product-row>
+                                        @endif
+                                        @if($product->sku)
+                                            <x-product-row
+                                                title="SKU"
+                                                :value="$product->sku"
+                                            ></x-product-row>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="w-1/2">
+                            <div class="w-fit border-4 border-dotted">
+                                <img src="{{ $labelImage }}" />
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

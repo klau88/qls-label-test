@@ -6,7 +6,6 @@ use App\Classes\Api;
 use App\Models\Shipment;
 use App\Models\ShipmentProduct;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ShipmentController extends Controller

@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classes\Api;
 use App\Models\Shipment;
-use App\Models\ShipmentProduct;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\PdfToImage\Pdf as PdfToImage;
 
