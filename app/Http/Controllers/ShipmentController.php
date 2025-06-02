@@ -48,11 +48,11 @@ class ShipmentController extends Controller
         $map = $api->mapOrderToShipment($order);
 
         $shipment = Shipment::firstOrCreate([
-            'product_combination_id' => $order['product_combination_id'],
+            'product_combination_id' => $order['product_combination_id'] ?? $map['product_combination_id'],
             'company_id' => $map['company_id'],
             'brand_id' => $map['brand_id'],
             'weight' => $order['weight'] ?? $map['weight'],
-            'reference' => $order['number'],
+            'reference' => $order['number'] ?? $map['reference'],
             'sender_company_name' => $map['sender_contact']['companyname'],
             'sender_name' => $map['sender_contact']['name'],
             'sender_street' => $map['sender_contact']['street'],
@@ -63,16 +63,16 @@ class ShipmentController extends Controller
             'sender_country' => $map['sender_contact']['country'],
             'sender_phone' => $map['sender_contact']['phone'],
             'sender_email' => $map['sender_contact']['email'],
-            'receiver_company_name' => $order['delivery_address']['companyname'],
-            'receiver_name' => $order['delivery_address']['name'],
-            'receiver_street' => $order['delivery_address']['street'],
-            'receiver_housenumber' => $order['delivery_address']['housenumber'],
-            'receiver_address2' => $order['delivery_address']['address_line_2'],
-            'receiver_postalcode' => $order['delivery_address']['zipcode'],
-            'receiver_city' => $order['delivery_address']['city'],
-            'receiver_country' => $order['delivery_address']['country'],
-            'receiver_phone' => $order['delivery_address']['phone'],
-            'receiver_email' => $order['delivery_address']['email'],
+            'receiver_company_name' => $order['delivery_address']['companyname'] ?? $map['receiver_contact']['companyname'],
+            'receiver_name' => $order['delivery_address']['name'] ?? $map['receiver_contact']['name'],
+            'receiver_street' => $order['delivery_address']['street'] ?? $map['receiver_contact']['street'],
+            'receiver_housenumber' => $order['delivery_address']['housenumber'] ?? $map['receiver_contact']['housenumber'],
+            'receiver_address2' => $order['delivery_address']['address_line_2'] ?? $map['receiver_contact']['address2'],
+            'receiver_postalcode' => $order['delivery_address']['zipcode'] ?? $map['receiver_contact']['postalcode'],
+            'receiver_city' => $order['delivery_address']['city'] ?? $map['receiver_contact']['locality'],
+            'receiver_country' => $order['delivery_address']['country'] ?? $map['receiver_contact']['country'],
+            'receiver_phone' => $order['delivery_address']['phone'] ?? $map['receiver_contact']['phone'],
+            'receiver_email' => $order['delivery_address']['email'] ?? $map['receiver_contact']['email'],
         ]);
 
         foreach ($order['order_lines'] as $product) {
