@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import axios from 'axios';
 
 const props = defineProps({
@@ -8,7 +8,7 @@ const props = defineProps({
 const synchronize = async () => {
     await axios.post('/shipments/store', {
         order: props.order
-    }).then(response => {
+    }).then(() => {
         window.location.href = '/shipments';
     });
 }

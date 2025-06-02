@@ -13,7 +13,6 @@ const newOrder = ref(props.order);
 const method = ref({});
 
 const addProduct = () => {
-    console.log(newOrder.value.order_lines);
     newOrder.value.order_lines.push({
         amount_ordered: 1,
         name: '',
@@ -140,7 +139,7 @@ const submit = async () => {
                                 v-model="method"
                                 class="p-2 border-2 border-gray-400">
                                 <option disabled selected>Selecteer een verzendmethode...</option>
-                                <option v-for="method in props.shippingMethods" :value="method">
+                                <option :key="key" v-for="(method,key) in props.shippingMethods" :value="method">
                                     {{ method.name }}
                                 </option>
                             </select>
@@ -150,7 +149,7 @@ const submit = async () => {
                                 @change="selectProductCombinationId"
                                 class="p-2 border-2 border-gray-400">
                                 <option disabled selected>Selecteer een optie...</option>
-                                <option v-for="combination in method.combinations" :value="combination.id">
+                                <option :key="key" v-for="(combination,key) in method.combinations" :value="combination.id">
                                     {{ combination.name }}
                                 </option>
                             </select>
