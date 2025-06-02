@@ -32,8 +32,10 @@ class ShipmentController extends Controller
     public function create()
     {
         $order = app()->make('testOrder');
+        $products = app()->make(Api::class)->getProducts();
+        $shippingMethods = $products['data'];
 
-        return Inertia::render('Shipments/Create', compact('order'));
+        return Inertia::render('Shipments/Create', compact('order', 'shippingMethods'));
     }
 
     /**
@@ -46,11 +48,11 @@ class ShipmentController extends Controller
         $map = $api->mapOrderToShipment($order);
 
         $shipment = Shipment::firstOrCreate([
-            'product_combination_id' => $map['product_combination_id'],
+            'product_combination_id' => $order['product_combination_id'],
             'company_id' => $map['company_id'],
             'brand_id' => $map['brand_id'],
-            'weight' => $map['weight'],
-            'reference' => $map['reference'],
+            'weight' => $order['weight'] ?? $map['weight'],
+            'reference' => $order['number'],
             'sender_company_name' => $map['sender_contact']['companyname'],
             'sender_name' => $map['sender_contact']['name'],
             'sender_street' => $map['sender_contact']['street'],
@@ -61,23 +63,23 @@ class ShipmentController extends Controller
             'sender_country' => $map['sender_contact']['country'],
             'sender_phone' => $map['sender_contact']['phone'],
             'sender_email' => $map['sender_contact']['email'],
-            'receiver_company_name' => $map['receiver_contact']['companyname'],
-            'receiver_name' => $map['receiver_contact']['name'],
-            'receiver_street' => $map['receiver_contact']['street'],
-            'receiver_housenumber' => $map['receiver_contact']['housenumber'],
-            'receiver_address2' => $map['receiver_contact']['address2'],
-            'receiver_postalcode' => $map['receiver_contact']['postalcode'],
-            'receiver_city' => $map['receiver_contact']['locality'],
-            'receiver_country' => $map['receiver_contact']['country'],
-            'receiver_phone' => $map['receiver_contact']['phone'],
-            'receiver_email' => $map['receiver_contact']['email'],
+            'receiver_company_name' => $order['delivery_address']['companyname'],
+            'receiver_name' => $order['delivery_address']['name'],
+            'receiver_street' => $order['delivery_address']['street'],
+            'receiver_housenumber' => $order['delivery_address']['housenumber'],
+            'receiver_address2' => $order['delivery_address']['address_line_2'],
+            'receiver_postalcode' => $order['delivery_address']['zipcode'],
+            'receiver_city' => $order['delivery_address']['city'],
+            'receiver_country' => $order['delivery_address']['country'],
+            'receiver_phone' => $order['delivery_address']['phone'],
+            'receiver_email' => $order['delivery_address']['email'],
         ]);
 
-        foreach ($map['shipment_products'] as $product) {
+        foreach ($order['order_lines'] as $product) {
             ShipmentProduct::firstOrCreate([
                 'shipment_id' => $shipment['id'] ?? null,
                 'shipment_product_id' => $product['id'] ?? null,
-                'amount' => $product['amount'] ?? 1,
+                'amount' => $product['amount_ordered'] ?? 1,
                 'name' => $product['name'] ?? null,
                 'country_code_of_origin' => $product['country_code_of_origin'] ?? null,
                 'hs_code' => $product['hs_code'] ?? null,
@@ -85,7 +87,7 @@ class ShipmentController extends Controller
                 'sku' => $product['sku'] ?? null,
                 'price_per_unit' => $product['price_per_unit'] ?? null,
                 'weight_per_unit' => $product['weight_per_unit'] ?? null,
-                'currency' => $product['currency'] ?? null,
+                'currency' => $product['currency'] ?? 'EUR',
             ]);
         };
     }
