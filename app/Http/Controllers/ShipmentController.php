@@ -79,7 +79,7 @@ class ShipmentController extends Controller
             ShipmentProduct::firstOrCreate([
                 'shipment_id' => $shipment['id'] ?? null,
                 'shipment_product_id' => $product['id'] ?? null,
-                'amount' => $product['amount_ordered'] ?? 1,
+                'amount' => $product['amount_ordered'] ?? $map['amount'] ?? 1,
                 'name' => $product['name'] ?? null,
                 'country_code_of_origin' => $product['country_code_of_origin'] ?? null,
                 'hs_code' => $product['hs_code'] ?? null,
