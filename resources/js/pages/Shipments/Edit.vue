@@ -2,38 +2,37 @@
 import Icon from '@/components/Icon.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { onMounted, ref } from 'vue';
 import axios from 'axios';
-import { ref } from 'vue';
 import AddRemoveButton from '@/components/AddRemoveButton.vue';
 import { useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
-    order: Object,
-    shippingMethods: Object
+    shipment: Object,
+    shippingMethods: Object,
 });
-
-const newOrder = ref(props.order);
-const method = ref({});
+const selectedShippingMethod = () => props.shippingMethods.filter(method => method.combinations.filter(combination => combination.id === props.shipment.product_combination_id).length)[0];
+const method = ref(selectedShippingMethod());
 
 const addProduct = () => {
-    form.order_lines.push({
+    props.shipment.products.push({
         amount_ordered: 1,
         name: '',
     });
 };
 
-const removeProduct = key => {
-    form.order_lines.splice(key, 1);
+const form = useForm(props.shipment);
+
+const removeProduct = (key) => {
+    props.shipment.products.splice(key, 1);
 };
 
-const selectProductCombinationId = event => {
-    form.product_combination_id = event.target.value;
-}
-
-const form = useForm(newOrder.value);
+const selectProductCombinationId = (event) => {
+    props.shipment.product_combination_id = event.target.value;
+};
 
 const submit = () => {
-    form.post('/shipments/store');
+    form.put(`/shipments/${props.shipment.id}/update`);
 };
 </script>
 
@@ -42,43 +41,49 @@ const submit = () => {
         <div class="w-7xl px-2">
             <div class="flex flex-row items-center justify-between">
                 <div>
-                    <h1 class="text-4xl font-bold">Zending aanmaken</h1>
+                    <h1 class="text-4xl font-bold">Zending wijzigen</h1>
                 </div>
                 <div>
                     <button
                         class="m-2 flex items-center justify-center rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
                         type="submit"
-                        form="shipmentForm"
+                        form="updateShipment"
                         @click.prevent="submit"
                     >
-                        Opslaan
+                        Wijziging opslaan
                     </button>
                 </div>
             </div>
             <div>
-                <form id="shipmentForm">
+                <form id="updateShipment">
                     <div class="flex flex-row items-center">
                         <Label class="w-1/4 px-2">Referentie</Label>
-                        <Input class="w-3/4" v-model="form.number"></Input>
+                        <Input class="w-3/4" v-model="form.reference" required></Input>
                     </div>
                     <div class="flex flex-col">
                         <div class="px-2 py-4">
                             <h2 class="text-lg font-bold">Verzendmethode</h2>
                         </div>
-                        <select
-                            v-model="method"
-                            class="m-2 p-2 border-2 border-gray-400">
-                            <option disabled selected>Selecteer een verzendmethode...</option>
-                            <option :key="key" v-for="(method,key) in props.shippingMethods" :value="method">
+
+                        <select v-model="method" class="m-2 border-2 border-gray-400 p-2">
+                            <option disabled>Selecteer een verzendmethode...</option>
+                            <option
+                                :key="key"
+                                v-for="(method, key) in props.shippingMethods"
+                                :value="method"
+                            >
                                 {{ method.name }}
                             </option>
                         </select>
-                        <select
-                            v-if="method.combinations"
-                            @change="selectProductCombinationId"
-                            class="m-2 p-2 border-2 border-gray-400">
+
+                        <select @change="selectProductCombinationId" class="m-2 border-2 border-gray-400 p-2">
                             <option disabled selected>Selecteer een optie...</option>
-                            <option :key="key" v-for="(combination,key) in method.combinations" :value="combination.id">
+                            <option
+                                :key="key"
+                                v-for="(combination, key) in method.combinations"
+                                :value="combination.id"
+                                :selected="combination.id === form.product_combination_id"
+                            >
                                 {{ combination.name }}
                             </option>
                         </select>
@@ -89,31 +94,31 @@ const submit = () => {
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Naam</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.name"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_name"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Bedrijfsnaam</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.companyname"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_company_name"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Straat</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.street"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_street"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Huisnummer</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.housenumber"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_housenumber"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Postcode</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.zipcode"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_postalcode"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Plaats</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.city"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_city"></Input>
                         </div>
                         <div class="flex flex-row items-center py-2">
                             <Label class="w-1/4 px-2">Land</Label>
-                            <Input class="w-3/4" v-model="form.delivery_address.country"></Input>
+                            <Input class="w-3/4" v-model="form.receiver_country"></Input>
                         </div>
                     </div>
                     <div>
@@ -125,12 +130,12 @@ const submit = () => {
                                 <Icon name="plus" @click.prevent="addProduct" />
                             </AddRemoveButton>
                         </div>
-                        <div :key="key" v-for="(product, key) in form.order_lines">
+                        <div :key="key" v-for="(product, key) in form.products">
                             <div class="my-4 mb-6 flex flex-row items-center border-t-4">
                                 <div class="grow">
                                     <div class="flex flex-row items-center py-2">
                                         <Label class="w-1/4 px-2">Aantal</Label>
-                                        <Input class="w-3/4" v-model="product.amount_ordered"></Input>
+                                        <Input class="w-3/4" v-model="product.amount"></Input>
                                     </div>
                                     <div class="flex flex-row items-center py-2">
                                         <Label class="w-1/4 px-2">Product</Label>

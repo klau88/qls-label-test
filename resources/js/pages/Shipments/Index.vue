@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { nextTick, ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
 
-const button = ref();
 const selected = ref(null);
 
 defineProps({
@@ -35,6 +35,12 @@ const makeLabel = async (shipment) => {
             link.remove();
         });
 };
+
+const form = useForm({});
+
+const deleteShipment = (id) => {
+    form.delete(`/shipments/${id}/destroy`);
+}
 </script>
 
 <template>
@@ -56,7 +62,7 @@ const makeLabel = async (shipment) => {
                 <th>Adres</th>
                 <th>E-mailadres</th>
                 <th>Telefoonnummer</th>
-                <th></th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
@@ -75,14 +81,32 @@ const makeLabel = async (shipment) => {
                 <td class="px-2">{{ shipment.receiver_email }}</td>
                 <td class="px-2">{{ shipment.receiver_phone }}</td>
                 <td class="px-2">
-                    <button
-                        class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                        ref="button"
-                        id="button"
-                        @click.prevent="makeLabel(shipment.id)"
-                    >
-                        Download pakbon
-                    </button>
+                    <div class="flex flex-row">
+                        <button
+                            class="rounded mx-2 px-4 py-2 font-bold text-white bg-yellow-500 hover:bg-yellow-700"
+                            @click.prevent="makeLabel(shipment.id)"
+                        >
+                            Download pakbon
+                        </button>
+                        <a
+                            class="rounded mx-2 px-4 py-2 text-white bg-blue-500 hover:bg-blue-700"
+                           :href="`/shipments/${shipment.id}`"
+                        >
+                            Openen
+                        </a>
+                        <a
+                            class="rounded mx-2 px-4 py-2 text-white bg-green-500 hover:bg-green-700"
+                            :href="`/shipments/${shipment.id}/edit`"
+                        >
+                            Wijzigen
+                        </a>
+                        <button
+                            class="rounded mx-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700"
+                            @click.prevent="deleteShipment(shipment.id)"
+                        >
+                            Verwijderen
+                        </button>
+                    </div>
                 </td>
             </tr>
         </tbody>

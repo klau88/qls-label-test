@@ -28,5 +28,5 @@ it('can generate a PDF file from the label response', function () {
     $order = app()->make('testOrder');
     $response = $this->post(route('shipments.store'), compact('order'));
 
-    $response->assertStatus(200);
+    $response->assertStatus(302);
 });
