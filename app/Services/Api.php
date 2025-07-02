@@ -213,11 +213,11 @@ class Api
 
     /**
      * @param string $url
-     * @return string
+     * @return array
      * @throws ConnectionException
      */
-    public function getLabelPdf(string $url): string
+    public function getLabelPdf(string $url): array
     {
-        return $this->fetch()->get($url);
+        return $this->fetch()->get($url)->json();
     }
 }

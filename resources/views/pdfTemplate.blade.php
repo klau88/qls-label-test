@@ -93,8 +93,8 @@
                 </x-header-row>
                 <div class="flex flex-row text-sm">
                     <div class="w-1/2">
-                        @if($order['orderLines'])
-                            @foreach($order['orderLines'] as $orderLine)
+                        @if($order['order_lines'])
+                            @foreach($order['order_lines'] as $orderLine)
                                 <div class="flex w-full flex-row items-center py-4">
                                     <div class="px-2">
                                         {{ $orderLine['amount_ordered'] }} x

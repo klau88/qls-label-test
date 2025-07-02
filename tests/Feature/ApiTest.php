@@ -3,7 +3,9 @@
 use App\Models\Order;
 use App\Models\OrderLine;
 use App\Services\Api;
+use App\Services\CreateLabelPdfService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
@@ -210,74 +212,7 @@ it('can get a shipment response from a test order', function () {
 
     $fakeResponse = [
         'data' => [
-            'id' => '2d5948ae-fd44-4eb4-8fdd-2430495d2da0',
-            'company_id' => '9e606e6b-44a4-4a4e-a309-cc70ddd3a103',
-            'brand_id' => 'e41c8d26-bdfd-4999-9086-e5939d67ae28',
-            'product_combination_id' => 1,
-            'status' => 'printed',
-            'reference' => '#' . $order['number'],
-            'sender_contact' => [
-                'name' => 'John Doe',
-                'companyname' => 'QLS',
-                'street' => 'Daltonstraat',
-                'housenumber' => '65',
-                'postalcode' => '3316GD',
-                'locality' => 'Dordrecht',
-                'country' => 'NL',
-                'phone' => '0101234567',
-                'email' => 'email@example.com',
-            ],
-            'delivery_contact' => [
-                'name' => 'John Doe',
-                'companyname' => 'QLS',
-                'street' => 'Daltonstraat',
-                'housenumber' => '65',
-                'postalcode' => '3316GD',
-                'locality' => 'Dordrecht',
-                'country' => 'NL',
-                'phone' => '0101234567',
-                'email' => 'email@example.com',
-            ],
-            'shipment_products' => [
-                'data' => [
-                    [
-                        'id' => 'dffc3b85-eafa-4d54-b49a-f1f533ca8379',
-                        'amount' => 2,
-                        'name' => 'Jeans - Black - 36',
-                        'country_code_of_origin' => null,
-                        'hs_code' => null,
-                        'ean' => '8710552295268',
-                        'sku' => '69205',
-                        'price_per_unit' => 29.99,
-                        'weight_per_unit' => null,
-                        'currency' => 'EUR'
-                    ],
-                    [
-                        'id' => 'a93f38f2-b404-45c5-bfd2-f1962d3fee9d',
-                        'amount' => 1,
-                        'name' => 'Sjaal - Rood Oranje',
-                        'country_code_of_origin' => null,
-                        'hs_code' => null,
-                        'ean' => '3059943009097',
-                        'sku' => '25920',
-                        'price_per_unit' => 10.99,
-                        'weight_per_unit' => null,
-                        'currency' => 'EUR'
-                    ]
-                ]
-            ],
-            'product' => [
-                'id' => 1,
-                'short' => 'dhl-mailbox-parcel',
-                'name' => 'DHL Brievenbus pakje',
-                'type' => 'delivery',
-                'product_family' => [
-                    'id' => '1a6ae81e-ce57-4daf-8709-8e5f3ca42715',
-                    'name' => 'DHL eCommerce',
-                    'target_group_tag' => 'family_dhlparcel_ecommerce'
-                ]
-            ],
-            'tracking_id' => '3SQLW0028308715'
+            'label_pdf_url' => 'https://api.pakketdienstqls.nl/v2/companies/9e606e6b-44a4-4a4e-a309-cc70ddd3a103/shipments/2d5948ae-fd44-4eb4-8fdd-2430495d2da0/labels/pdf',
         ]
     ];
 
@@ -288,18 +223,43 @@ it('can get a shipment response from a test order', function () {
     $response = Http::post($apiUrl, $data);
 
     expect($response->status())->toBe(200);
-    expect($response['data']['company_id'])->toBe(config('api.company_id'));
-    expect($response['data']['brand_id'])->toBe(config('api.brand_id'));
-    expect($response['data']['product_combination_id'])->toBe(1);
-    expect($response['data']['reference'])->toBe('#' . $order['number']);
-    expect($response['data']['status'])->toBe('printed');
-    expect($response['data']['shipment_products']['data'])->toHaveCount(2);
-    expect($response['data']['tracking_id'])->toBeTruthy();
+    expect($response['data']['label_pdf_url'])->toBe('https://api.pakketdienstqls.nl/v2/companies/9e606e6b-44a4-4a4e-a309-cc70ddd3a103/shipments/2d5948ae-fd44-4eb4-8fdd-2430495d2da0/labels/pdf');
 });
 
-//it('can generate a PDF file from the label response', function () {
-//    $order = $this->app->make('testOrder');
-//    $response = $this->post(route('orders.store'), compact('order'));
-//
-//    $response->assertStatus(302);
-//});
+it('can generate a PDF file from the label response', function () {
+    Storage::fake('public');
+
+    $companyId = config('api.company_id');
+    $brandId = config('api.brand_id');
+    $apiUrl = config('api.url') . "/v2/companies/{$companyId}/shipments";
+
+    $newOrder = Order::factory()
+        ->has(OrderLine::factory()->count(2))
+        ->create([
+            'product_combination_id' => 1,
+            'company_id' => $companyId,
+            'brand_id' => $brandId,
+        ]);
+
+    $order = Order::with('orderLines')->find($newOrder['id']);
+
+    $fakeResponse = [
+        'data' => [
+            'label_pdf_url' => 'https://api.pakketdienstqls.nl/v2/companies/9e606e6b-44a4-4a4e-a309-cc70ddd3a103/shipments/2d5948ae-fd44-4eb4-8fdd-2430495d2da0/labels/pdf',
+        ]
+    ];
+
+    Http::fake([
+        $apiUrl => Http::response($fakeResponse, 200)
+    ]);
+
+    $labelService = $this->app->make(CreateLabelPdfService::class);
+    $response = $labelService->generatePdf($order->id);
+
+    Storage::disk('public')->assertExists("label_{$order->id}.pdf");
+
+    $content = Storage::disk('public')->get("label_{$order->id}.pdf");
+    expect($content)->toStartWith('%PDF');
+
+    expect($response)->toendWith("label_{$order->id}.pdf");
+});
