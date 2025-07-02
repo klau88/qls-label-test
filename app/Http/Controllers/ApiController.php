@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\PdfToImage\Pdf as PdfToImage;
+use Illuminate\Http\Client\Response;
 
 class ApiController extends Controller
 {
@@ -15,25 +16,10 @@ class ApiController extends Controller
         return app()->make(Api::class);
     }
 
-    public function authenticate()
-    {
-        return $this->api()->authenticate();
-    }
-
-    public function products()
-    {
-        return $this->api()->getProducts();
-    }
-
-    public function getLabel(Order $order)
-    {
-        return $this->api()->getLabel($order);
-    }
-
     public function generatePdf()
     {
         $id = request()->input('order');
-        $order = Order::with('orderLines')->find($id);
+        $order = Order::with('orderLines')->find($id)->toArray();
 
         $pdfLocation = Storage::disk('public')->path("label_{$id}.pdf");
 

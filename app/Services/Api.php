@@ -106,7 +106,7 @@ class Api
             'zpl_direct' => true
         ];
 
-        foreach ($order['orderLines'] as $orderLine) {
+        foreach ($order['order_lines'] as $orderLine) {
             array_push($shipment['shipment_products'], [
                 'amount' => $orderLine['amount_ordered'],
                 'name' => $orderLine['name'],
@@ -124,16 +124,13 @@ class Api
     }
 
     /**
-     * @param $shipment
-     * @return PromiseInterface|Response
-     * @throws ConnectionException
+     * @param array $shipment
+     * @return array
      */
-    public function getLabel($shipment)
+    public function mapShipmentToLabelRequest(array $shipment): array
     {
         $companyId = config('api.company_id');
         $brandId = config('api.brand_id');
-
-//        $shipment = $this->mapOrderToShipment($order);
 
         $data = [
             'product_combination_id' => $shipment['product_combination_id'],
@@ -193,6 +190,23 @@ class Api
                 'country_code_of_origin' => $product['country_code_of_origin'] ?? null
             ]);
         }
+
+        return $data;
+    }
+
+    /**
+     * @param $shipment
+     * @return PromiseInterface|Response
+     * @throws ConnectionException
+     */
+    public function getLabel($shipment)
+    {
+        $companyId = config('api.company_id');
+        $brandId = config('api.brand_id');
+
+//        $shipment = $this->mapOrderToShipment($order);
+
+        $data = $this->mapShipmentToLabelRequest($shipment);
 
         return $this->fetch()->post(config('api.url') . "/v2/companies/{$companyId}/shipments", $data);
     }
