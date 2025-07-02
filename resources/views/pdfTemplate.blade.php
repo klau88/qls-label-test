@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Pakbon {{ $shipment->id }}</title>
+    <title>Pakbon {{ $order['id'] }}</title>
 
     <script>
         (function() {
@@ -49,42 +49,42 @@
             <div class="flex flex-row items-center justify-between">
                 <div class="flex flex-col">
                     <h1 class="text-3xl font-bold">Pakbon</h1>
-                    <h3 class="text-sm">Bestelnummer: {{ $shipment->reference }}</h3>
+                    <h3 class="text-sm">Bestelnummer: {{ $order['number'] }}</h3>
                 </div>
                 <div class="text-xs">
                     <x-address-view
                         title="Afzender"
-                        :name="$shipment->sender_name"
-                        :companyname="$shipment->sender_companyname"
-                        :street="$shipment->sender_street"
-                        :housenumber="$shipment->sender_housenumber"
-                        :postalcode="$shipment->sender_postalcode"
-                        :city="$shipment->sender_city"
-                        :country="$shipment->sender_country"
-                        :email="$shipment->sender_email"
-                        :phone="$shipment->sender_phone"
+                        :name="$order['billing_name']"
+                        :companyname="$order['billing_companyname']"
+                        :street="$order['billing_street']"
+                        :housenumber="$order['billing_housenumber']"
+                        :postalcode="$order['billing_zipcode']"
+                        :city="$order['billing_city']"
+                        :country="$order['billing_country']"
+                        :email="$order['billing_email']"
+                        :phone="$order['billing_phone']"
                     ></x-address-view>
                 </div>
             </div>
             <div class="text-sm">
                 <x-address-view
                     title="Klantgegevens"
-                    :name="$shipment->receiver_name"
-                    :companyname="$shipment->receiver_companyname"
-                    :street="$shipment->receiver_street"
-                    :housenumber="$shipment->receiver_housenumber"
-                    :postalcode="$shipment->receiver_postalcode"
-                    :city="$shipment->receiver_city"
-                    :country="$shipment->receiver_country"
-                    :email="$shipment->receiver_email"
-                    :phone="$shipment->receiver_phone"
+                    :name="$order['delivery_name']"
+                    :companyname="$order['delivery_companyname']"
+                    :street="$order['delivery_street']"
+                    :housenumber="$order['delivery_housenumber']"
+                    :postalcode="$order['delivery_zipcode']"
+                    :city="$order['delivery_city']"
+                    :country="$order['delivery_country']"
+                    :email="$order['delivery_email']"
+                    :phone="$order['delivery_phone']"
                 ></x-address-view>
             </div>
             <div>
                 <x-header-row>
                     <div class="flex flex-row">
                         <div class="w-1/2">
-                            <h2 class="text-md font-bold text-white">Producten</h2>
+                            <h2 class="text-md font-bold text-white">Artikelen</h2>
                         </div>
                         <div class="w-1/2">
                             <h2 class="text-md font-bold text-white">Hierbij uw verzendlabel</h2>
@@ -92,30 +92,30 @@
                     </div>
                 </x-header-row>
                 <div class="flex flex-row text-sm">
-                    @if($shipment['products'])
-                        <div class="w-1/2">
-                            @foreach($shipment['products'] as $product)
+                    <div class="w-1/2">
+                        @if($order['orderLines'])
+                            @foreach($order['orderLines'] as $orderLine)
                                 <div class="flex w-full flex-row items-center py-4">
                                     <div class="px-2">
-                                        {{ $product->amount }} x
+                                        {{ $orderLine['amount_ordered'] }} x
                                     </div>
                                     <div class="grow">
                                         <x-product-row
-                                            title=""
-                                            :value="$product->name"
-                                            :price="($product->amount * $product->price_per_unit)"
+                                            title="Product"
+                                            :value="$orderLine['name']"
+                                            :price="($orderLine['amount_ordered'] * $orderLine['price_per_unit'])"
                                         >
                                         </x-product-row>
                                     </div>
                                 </div>
                             @endforeach
+                        @endif
+                    </div>
+                    <div class="w-1/2">
+                        <div class="w-fit border-4 border-dotted">
+                            <img style="" class="m-2" src="{{ $labelImage }}" />
                         </div>
-                        <div class="w-1/2">
-                            <div class="w-fit border-4 border-dotted">
-                                <img src="{{ $labelImage }}" />
-                            </div>
-                        </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>

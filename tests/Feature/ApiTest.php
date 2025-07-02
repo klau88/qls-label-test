@@ -1,6 +1,6 @@
 <?php
 
-use App\Classes\Api;
+use App\Services\Api;
 use App\Models\Shipment;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
