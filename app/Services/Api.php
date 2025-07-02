@@ -2,38 +2,55 @@
 
 namespace App\Services;
 
-use App\Models\Order;
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 
 class Api
 {
-    private $url = 'https://api.pakketdienstqls.nl/';
-    private $username;
-    private $password;
+    private string $username;
+    private string $password;
 
-    public function __construct($username, $password)
+    public function __construct(string $username, string $password)
     {
         $this->username = $username;
         $this->password = $password;
     }
 
-    private function fetch()
+    /**
+     * @return PendingRequest
+     */
+    private function fetch(): PendingRequest
     {
         return Http::withBasicAuth($this->username, $this->password);
     }
 
-    public function authenticate()
+    /**
+     * @return Response
+     * @throws ConnectionException
+     */
+    public function authenticate(): Response
     {
         return $this->fetch()->get(config('api.url'));
     }
 
-    public function getProducts()
+    /**
+     * @return Response
+     * @throws ConnectionException
+     */
+    public function getProducts(): Response
     {
         $companyId = config('api.company_id');
         return $this->fetch()->get(config('api.url') . "companies/{$companyId}/products");
     }
 
-    public function mapOrderToShipment($order)
+    /**
+     * @param array $order
+     * @return array
+     */
+    public function mapOrderToShipment(array $order): array
     {
         $shipment = [
             'product_combination_id' => 1,
@@ -106,6 +123,11 @@ class Api
         return $shipment;
     }
 
+    /**
+     * @param $shipment
+     * @return PromiseInterface|Response
+     * @throws ConnectionException
+     */
     public function getLabel($shipment)
     {
         $companyId = config('api.company_id');
@@ -159,7 +181,7 @@ class Api
         ];
 
         foreach ($shipment['shipment_products'] as $product) {
-            array_push($data, [
+            array_push($data['shipment_products'], [
                 'amount' => $product['amount'],
                 'name' => $product['name'],
                 'hs_code' => $product['hs_code'] ?? null,
@@ -175,7 +197,12 @@ class Api
         return $this->fetch()->post(config('api.url') . "/v2/companies/{$companyId}/shipments", $data);
     }
 
-    public function getLabelPdf(string $url)
+    /**
+     * @param string $url
+     * @return string
+     * @throws ConnectionException
+     */
+    public function getLabelPdf(string $url): string
     {
         return $this->fetch()->get($url);
     }

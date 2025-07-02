@@ -35,7 +35,9 @@ class ApiController extends Controller
         $id = request()->input('order');
         $order = Order::with('orderLines')->find($id);
 
-        if (!file_exists(public_path("storage/label_{$id}.pdf"))) {
+        $pdfLocation = Storage::disk('public')->path("label_{$id}.pdf");
+
+        if (!file_exists($pdfLocation)) {
             $shipment = $this->api()->mapOrderToShipment($order);
             $response = $this->api()->getLabel($shipment);
             $data = $response['data'];
@@ -49,13 +51,17 @@ class ApiController extends Controller
             Storage::disk('public')->put("label_{$id}.pdf", $file);
         }
 
-        putenv('PATH=' . getenv('PATH') . ':/opt/homebrew/bin:/usr/local/bin');
-        $pdfImage = new PdfToImage(public_path("storage/label_{$id}.pdf"));
-        $pdfImage->save(public_path("storage/label_{$id}.jpg"));
-        $labelImage = asset("storage/label_{$id}.jpg");
+        $paths = implode(':', config('pdf.binary_paths'));
+        putenv('PATH=' . getenv('PATH') . ':' . $paths);
 
-        return Pdf::view('pdfTemplate', compact('shipment', 'labelImage'))
+        $pdfImage = new PdfToImage($pdfLocation);
+
+        $imageLocation = Storage::disk('public')->path("label_{$id}.jpg");
+        $pdfImage->save($imageLocation);
+        $labelImage = $imageLocation;
+
+        return Pdf::view('pdfTemplate', compact('order', 'labelImage'))
             ->format('a4')
-            ->save(public_path("storage/packing_slip_{$id}.pdf"));
+            ->save(Storage::disk('public')->path("packing_slip_{$id}.pdf"));
     }
 }
