@@ -4,6 +4,7 @@ use App\Models\Order;
 use App\Models\OrderLine;
 use App\Services\Api;
 use App\Services\CreateLabelPdfService;
+use App\Services\PdfToImageService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -227,6 +228,33 @@ it('can get a shipment response from a test order', function () {
 });
 
 it('can generate a PDF file from the label response', function () {
+    $order = fakeOrderAndLabelRequest();
+
+    $labelService = $this->app->make(CreateLabelPdfService::class);
+    $response = $labelService->generatePdf($order->id);
+
+    Storage::disk('public')->assertExists("label_{$order->id}.pdf");
+
+    $content = Storage::disk('public')->get("label_{$order->id}.pdf");
+    expect($content)->toStartWith('%PDF');
+
+    expect($response)->toendWith("label_{$order->id}.pdf");
+});
+
+it('can change the PDF into an image and save it', function () {
+    $order = fakeOrderAndLabelRequest();
+
+    $labelService = $this->app->make(CreateLabelPdfService::class);
+    $labelService->generatePdf($order->id);
+
+    $imageLocation = $this->app->make(PDfToImageService::class)->getImage($order->id);
+    Storage::disk('public')->assertExists("label_{$order->id}.jpg");
+
+    expect($imageLocation)->toEndWith("label_{$order->id}.jpg");
+});
+
+function fakeOrderAndLabelRequest()
+{
     Storage::fake('public');
 
     $companyId = config('api.company_id');
@@ -253,13 +281,5 @@ it('can generate a PDF file from the label response', function () {
         $apiUrl => Http::response($fakeResponse, 200)
     ]);
 
-    $labelService = $this->app->make(CreateLabelPdfService::class);
-    $response = $labelService->generatePdf($order->id);
-
-    Storage::disk('public')->assertExists("label_{$order->id}.pdf");
-
-    $content = Storage::disk('public')->get("label_{$order->id}.pdf");
-    expect($content)->toStartWith('%PDF');
-
-    expect($response)->toendWith("label_{$order->id}.pdf");
-});
+    return $order;
+}
