@@ -2,7 +2,7 @@
 import Icon from '@/components/Icon.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import AddRemoveButton from '@/components/AddRemoveButton.vue';
 import { useForm } from '@inertiajs/vue3';
 
@@ -10,28 +10,33 @@ const props = defineProps({
     order: Object,
     shippingMethods: Object,
 });
-const selectedShippingMethod = () => props.shippingMethods.filter(method => method.combinations.filter(combination => combination.id === props.order.product_combination_id).length)[0];
+
+const order = ref(props.order);
+
+const selectedShippingMethod = () => props.shippingMethods.filter(method => method.combinations.filter(combination => combination.id === order.value.product_combination_id).length)[0];
 const method = ref(selectedShippingMethod());
 
 const addProduct = () => {
-    props.order.products.push({
+    form.order_lines.push({
+        id: null,
+        order_id: form.id,
         amount_ordered: 1,
         name: '',
     });
 };
 
-const form = useForm(props.order);
+const form = useForm(order.value);
 
 const removeProduct = (key) => {
-    props.order.products.splice(key, 1);
+    form.order_lines.splice(key, 1);
 };
 
 const selectProductCombinationId = (event) => {
-    props.order.product_combination_id = event.target.value;
+    form.order.product_combination_id = event.target.value;
 };
 
 const submit = () => {
-    form.put(`/orders/${props.order.id}`);
+    form.put(`/orders/${order.value.id}`);
 };
 </script>
 

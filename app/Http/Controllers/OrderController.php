@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Api;
+use App\Services\Api;
 use App\Models\Order;
 use App\Models\OrderLine;
 use Illuminate\Http\Request;
@@ -132,7 +132,7 @@ class OrderController extends Controller
             'billing_country' => $request['billing_country'],
             'billing_phone' => $request['billing_phone'],
             'billing_email' => $request['billing_email'],
-            'delivery_company_name' => $request['delivery_companyname'],
+            'delivery_companyname' => $request['delivery_companyname'],
             'delivery_name' => $request['delivery_name'],
             'delivery_street' => $request['delivery_street'],
             'delivery_housenumber' => $request['delivery_housenumber'],
@@ -144,14 +144,33 @@ class OrderController extends Controller
             'delivery_email' => $request['delivery_email'],
         ]);
 
-        foreach($request['order_lines'] as $product) {
-            OrderLine::find($product['id'])->update([
-                'amount' => $product['amount_ordered'],
-                'name' => $product['name'],
-                'hs_code' => $product['hs_code'] ?? null,
-                'ean' => $product['ean'] ?? null,
-                'sku' => $product['sku'] ?? null,
-            ]);
+        $currentOrderLineIds = $order->orderLines()->pluck('id')->toArray();
+        $newOrderLineIds = collect($request['order_lines'])->pluck('id')->filter()->toArray();
+
+        $deleted = array_diff($currentOrderLineIds, $newOrderLineIds);
+        if (!empty($deleted)) {
+            $order->orderLines()->whereIn('id', $deleted)->delete();
+        }
+
+        foreach ($request['order_lines'] as $line) {
+            if (!empty($line['id'])) {
+                OrderLine::find($line['id'])->update([
+                    'amount_ordered' => $line['amount_ordered'],
+                    'name' => $line['name'],
+                    'hs_code' => $line['hs_code'] ?? null,
+                    'ean' => $line['ean'] ?? null,
+                    'sku' => $line['sku'] ?? null,
+                ]);
+            } else {
+                OrderLine::create([
+                    'order_id' => $request['id'] ?? null,
+                    'amount_ordered' => $line['amount_ordered'],
+                    'name' => $line['name'],
+                    'hs_code' => $line['hs_code'] ?? null,
+                    'ean' => $line['ean'] ?? null,
+                    'sku' => $line['sku'] ?? null,
+                ]);
+            }
         }
 
         return redirect()->route('orders.show', $order);
