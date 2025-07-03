@@ -56,28 +56,8 @@ class Api
             'product_combination_id' => 1,
             'company_id' => config('api.company_id'),
             'brand_id' => config('api.brand_id'),
-//            'servicepoint_code' => 'string',
             'reference' => $order['number'],
             'weight' => 0,
-//            'cod_amount' => 0.1,
-//            'customs_invoice_number' => 'string',
-//            'customs_shipment_type' => 'commercial',
-//            'return_contact' => [
-//                'name' => 'John Doe',
-//                'companyname' => 'QLS',
-//                'street' => 'Daltonstraat',
-//                'housenumber' => '65',
-//                'address2' => '',
-//                'postalcode' => '3316GD',
-//                'locality' => 'Dordrecht',
-//                'country' => 'NL',
-//                'email' => 'email@example.com',
-//                'phone' => '0101234567',
-//                'vat' => 'string',
-//                'eori' => 'string',
-//                'oss' => 'string',
-//                'type' => 'string'
-//            ],
             'sender_contact' => [
                 'name' => $order['billing_name'],
                 'companyname' => $order['billing_companyname'],
@@ -129,7 +109,6 @@ class Api
      */
     public function mapShipmentToLabelRequest(array $shipment): array
     {
-        $companyId = config('api.company_id');
         $brandId = config('api.brand_id');
 
         $data = [
@@ -137,18 +116,6 @@ class Api
             'brand_id' => $brandId,
             'reference' => $shipment['reference'],
             'weight' => $shipment['weight'],
-//            'return_contact' => [
-//                'name' => $shipment['billing_name'],
-//                'companyname' => $shipment['billing_companyname'],
-//                'street' => $shipment['billing_street'],
-//                'housenumber' => $shipment['billing_housenumber'],
-//                'address2' => $shipment['billing_address_line_2'],
-//                'postalcode' => $shipment['billing_zipcode'],
-//                'locality' => $shipment['billing_city'],
-//                'country' => $shipment['billing_country'],
-//                'email' => $shipment['billing_email'] ?? null,
-//                'phone' => $shipment['billing_phone'] ?? null,
-//            ],
             'sender_contact' => [
                 'name' => $shipment['sender_contact']['name'],
                 'companyname' => $shipment['sender_contact']['companyname'],
@@ -199,13 +166,9 @@ class Api
      * @return PromiseInterface|Response
      * @throws ConnectionException
      */
-    public function getLabel($shipment)
+    public function getLabel($shipment): Response
     {
         $companyId = config('api.company_id');
-        $brandId = config('api.brand_id');
-
-//        $shipment = $this->mapOrderToShipment($order);
-
         $data = $this->mapShipmentToLabelRequest($shipment);
 
         return $this->fetch()->post(config('api.url') . "/v2/companies/{$companyId}/shipments", $data);

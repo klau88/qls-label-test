@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Services\Api;
 use App\Models\Order;
 use App\Models\OrderLine;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class OrderController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
         $orders = Order::with('orderLines')->paginate(100)->toArray();
 
@@ -26,7 +28,7 @@ class OrderController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         $products = app()->make(Api::class)->getProducts();
         $shippingMethods = $products['data'];
@@ -37,7 +39,7 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $order = Order::firstOrCreate([
             'product_combination_id' => $request['productCombinationId'],
@@ -87,7 +89,7 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show(Order $order): Response
     {
         $order = $order->with('orderLines')->first();
 
@@ -106,7 +108,7 @@ class OrderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Order $order)
+    public function edit(Order $order): Response
     {
         $order = $order->with('orderLines')->first();
         $products = app()->make(Api::class)->getProducts();
@@ -118,7 +120,7 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order): RedirectResponse
     {
         $order->update([
             'reference' => $request['reference'],
@@ -179,7 +181,7 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Order $order)
+    public function destroy(Order $order): string
     {
         $order->delete();
 
