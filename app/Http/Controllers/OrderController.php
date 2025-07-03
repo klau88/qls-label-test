@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Order\StoreOrderRequest;
+use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Services\Api;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -39,34 +41,11 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreOrderRequest $request): RedirectResponse
     {
-        $order = Order::firstOrCreate([
-            'product_combination_id' => $request['productCombinationId'],
-            'company_id' => config('api.company_id'),
-            'brand_id' => config('api.brand_id'),
-            'number' => $request['reference'],
-            'billing_companyname' => $request['senderCompanyName'],
-            'billing_name' => $request['senderName'],
-            'billing_street' => $request['senderStreet'],
-            'billing_housenumber' => $request['senderNumber'],
-            'billing_address_line_2' => $request['senderAddress2'] ?? null,
-            'billing_zipcode' => $request['senderPostal'],
-            'billing_city' => $request['senderCity'],
-            'billing_country' => $request['senderCountry'],
-            'billing_phone' => $request['senderPhone'],
-            'billing_email' => $request['senderEmail'],
-            'delivery_companyname' => $request['receiverCompanyName'],
-            'delivery_name' => $request['receiverName'],
-            'delivery_street' => $request['receiverStreet'],
-            'delivery_housenumber' => $request['receiverNumber'],
-            'delivery_address_line_2' => $request['receiverAddress2'] ?? null,
-            'delivery_zipcode' => $request['receiverPostal'],
-            'delivery_city' => $request['receiverCity'],
-            'delivery_country' => $request['receiverCountry'],
-            'delivery_phone' => $request['receiverPhone'],
-            'delivery_email' => $request['receiverEmail'],
-        ]);
+        $validated = $request->validated();
+
+        $order = Order::firstOrCreate($validated);
 
         foreach ($request['orderLines'] as $line) {
             OrderLine::firstOrCreate([
@@ -120,31 +99,11 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order): RedirectResponse
+    public function update(UpdateOrderRequest $request, Order $order): RedirectResponse
     {
-        $order->update([
-            'reference' => $request['reference'],
-            'billing_companyname' => $request['billing_companyname'],
-            'billing_name' => $request['billing_name'],
-            'billing_street' => $request['billing_street'],
-            'billing_housenumber' => $request['billing_housenumber'],
-            'billing_address_line_2' => $request['billing_address_line_2'] ?? null,
-            'billing_zipcode' => $request['billing_zipcode'],
-            'billing_city' => $request['billing_city'],
-            'billing_country' => $request['billing_country'],
-            'billing_phone' => $request['billing_phone'],
-            'billing_email' => $request['billing_email'],
-            'delivery_companyname' => $request['delivery_companyname'],
-            'delivery_name' => $request['delivery_name'],
-            'delivery_street' => $request['delivery_street'],
-            'delivery_housenumber' => $request['delivery_housenumber'],
-            'delivery_address_line_2' => $request['delivery_address_line_2'] ?? null,
-            'delivery_zipcode' => $request['delivery_zipcode'],
-            'delivery_city' => $request['delivery_city'],
-            'delivery_country' => $request['delivery_country'],
-            'delivery_phone' => $request['delivery_phone'],
-            'delivery_email' => $request['delivery_email'],
-        ]);
+        $validated = $request->validated();
+
+        $order->update($validated);
 
         $currentOrderLineIds = $order->orderLines()->pluck('id')->toArray();
         $newOrderLineIds = collect($request['order_lines'])->pluck('id')->filter()->toArray();

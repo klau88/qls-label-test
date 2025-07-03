@@ -253,6 +253,12 @@ it('can change the PDF into an image and save it', function () {
     expect($imageLocation)->toEndWith("label_{$order->id}.jpg");
 });
 
+it('rejects invalid order submission', function () {
+    $response = $this->post(route('orders.store'), []);
+    $response->assertSessionDoesntHaveErrors('delivery_phone');
+    $response->assertSessionHasErrors(['number', 'orderLines']);
+});
+
 function fakeOrderAndLabelRequest()
 {
     Storage::fake('public');
