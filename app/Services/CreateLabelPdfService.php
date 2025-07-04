@@ -10,11 +10,11 @@ class CreateLabelPdfService
 {
     /**
      * @param int $orderId
-     * @return string
+     * @return void
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \Illuminate\Http\Client\ConnectionException
      */
-    public function generatePdf(int $orderId): string
+    public function generatePdf(int $orderId): void
     {
         $order = Order::with('orderLines')->find($orderId)->toArray();
 
@@ -32,7 +32,5 @@ class CreateLabelPdfService
 
             Storage::disk('public')->put("label_{$orderId}.pdf", $pdf);
         }
-
-        return $pdfLocation;
     }
 }

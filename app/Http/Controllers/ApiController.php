@@ -14,8 +14,8 @@ class ApiController extends Controller
     {
         $id = request()->input('order');
         $order = Order::with('orderLines')->find($id)->toArray();
-        $pdfLocation = $createLabelPdfService->generatePdf($id);
-        $labelImage = $pdfToImageService->getImage($pdfLocation, $id);
+        $createLabelPdfService->generatePdf($id);
+        $labelImage = $pdfToImageService->getImage($id);
 
         return Pdf::view('pdfTemplate', compact('order', 'labelImage'))
             ->format('a4')
